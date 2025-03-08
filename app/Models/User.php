@@ -50,4 +50,43 @@ class User extends Authenticatable
     {
         return $this->hasOne(Profile::class);
     }
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+    // Пользователи, которые подписаны на данного пользователя (подписчики)
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')
+            ->withTimestamps();
+    }
+
+    // Пользователи, на которых подписан данный пользователь (подписки)
+    public function followings()
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')
+            ->withTimestamps();
+    }
+
+    // Проверка, подписан ли текущий пользователь на другого пользователя
+    public function isFollowing(User $user)
+    {
+        return $this->followings()->where('followed_id', $user->id)->exists();
+    }
+
+    // Проверка, является ли текущий пользователь подписчиком другого пользователя
+    public function isFollowedBy(User $user)
+    {
+        return $this->followers()->where('follower_id', $user->id)->exists();
+    }
 }
